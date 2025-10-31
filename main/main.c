@@ -235,37 +235,19 @@ void app_main(void)
 
     lv_label_set_text_fmt(label_asc, "SELF TEST");
     ESP_ERROR_CHECK(scd4x_perform_self_test(&scd4x_dev, &sensor_fail));
-    if (!sensor_fail)
+    lv_label_set_text_fmt(label_asc, sensor_fail ? "SENSOR FAIL" : "SENSOR GOOD");
+    lv_style_set_text_color(&style_asc, sensor_fail ? lv_color_hex(0xe4002b) : lv_color_white());
+    do
     {
-        lv_label_set_text_fmt(label_asc, "SENSOR GOOD");
-        lv_style_set_text_color(&style_asc, lv_color_white());
         vTaskDelay(pdMS_TO_TICKS(300));
-    }
-    else
-    {
-        lv_label_set_text_fmt(label_asc, "SENSOR FAIL");
-        lv_style_set_text_color(&style_asc, lv_color_hex(0xe4002b));
-        while (1)
-        {
-            vTaskDelay(pdMS_TO_TICKS(1000));
-        }
-    }
+    } while (sensor_fail);
 
     ESP_ERROR_CHECK(scd4x_set_automatic_self_calibration(&scd4x_dev, true));
     ESP_ERROR_CHECK(scd4x_get_automatic_self_calibration(&scd4x_dev, &asc_enabled));
-    if (!asc_enabled)
-    {
-        lv_label_set_text_fmt(label_asc, "ASC: FAIL");
-        lv_style_set_text_color(&style_asc, lv_color_hex(0xe4002b));
-        while (1)
-        {
-            vTaskDelay(pdMS_TO_TICKS(1000));
-        }
-    }
-    else
-    {
-        lv_label_set_text_fmt(label_asc, "ASC: ON");
-    }
+    lv_label_set_text_fmt(label_asc, asc_enabled ? "ASC: ON" : "ASC: FAIL");
+    lv_style_set_text_color(&style_asc, asc_enabled ? lv_color_white() : lv_color_hex(0xe4002b));
+    while (!asc_enabled)
+        vTaskDelay(pdMS_TO_TICKS(1000));
 
     ESP_ERROR_CHECK(scd4x_start_periodic_measurement(&scd4x_dev));
     ESP_LOGI(TAG, "SCD4x periodic measurements started");
