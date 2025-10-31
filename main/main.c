@@ -131,6 +131,10 @@ static void scd4x_task(void *arg)
         }
     } while (!scd4x_datardy);
 
+    lvgl_port_lock(50);
+    lv_obj_add_flag(label_asc, LV_OBJ_FLAG_HIDDEN);
+    lvgl_port_unlock();
+
     while (1)
     {
         scd4x_get_data_ready_status(&scd4x_dev, &scd4x_datardy);
@@ -235,8 +239,10 @@ void app_main(void)
 
     lv_label_set_text_fmt(label_asc, "SELF TEST");
     ESP_ERROR_CHECK(scd4x_perform_self_test(&scd4x_dev, &sensor_fail));
+    lvgl_port_lock(50);
     lv_label_set_text_fmt(label_asc, sensor_fail ? "SENSOR FAIL" : "SENSOR GOOD");
     lv_style_set_text_color(&style_asc, sensor_fail ? lv_color_hex(0xe4002b) : lv_color_white());
+    lvgl_port_unlock();
     do
     {
         vTaskDelay(pdMS_TO_TICKS(300));
@@ -244,8 +250,10 @@ void app_main(void)
 
     ESP_ERROR_CHECK(scd4x_set_automatic_self_calibration(&scd4x_dev, true));
     ESP_ERROR_CHECK(scd4x_get_automatic_self_calibration(&scd4x_dev, &asc_enabled));
+    lvgl_port_lock(50);
     lv_label_set_text_fmt(label_asc, asc_enabled ? "ASC: ON" : "ASC: FAIL");
     lv_style_set_text_color(&style_asc, asc_enabled ? lv_color_white() : lv_color_hex(0xe4002b));
+    lvgl_port_unlock();
     while (!asc_enabled)
         vTaskDelay(pdMS_TO_TICKS(1000));
 
