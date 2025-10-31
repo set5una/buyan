@@ -1,0 +1,32 @@
+dependencies:
+  esp-idf-lib/esp_idf_lib_helpers:
+    version: '*'
+  esp-idf-lib/i2cdev:
+    version: '*'
+description: Driver for SCD40/SCD41 miniature CO₂ sensor
+discussion: https://github.com/esp-idf-lib/core/discussions
+documentation: https://esp-idf-lib.github.io/scd4x/
+files:
+  exclude:
+  - docs/**/*
+issues: https://github.com/esp-idf-lib/scd4x/issues
+license: BSD-3
+maintainers:
+- Ruslan V. Uss (@UncleRus) <unclerus@gmail.com>
+repository: git://github.com/esp-idf-lib/scd4x.git
+repository_info:
+  commit_sha: 36ae735c1d5dd4ef66f9c0067a3dd101184caa7a
+  path: .
+targets:
+- esp32
+- esp32c2
+- esp32c3
+- esp32c5
+- esp32c6
+- esp32c61
+- esp32h2
+- esp32p4
+- esp32s2
+- esp32s3
+url: https://github.com/esp-idf-lib/core
+version: 1.0.8
