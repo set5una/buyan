@@ -119,28 +119,34 @@ static void scd4x_task(void *arg)
 {
     uint16_t co2_reading;
     float temp, humidity;
+    bool scd4x_datardy = false;
+
+    do
+    {
+        ESP_LOGI(TAG, "Waiting for SCD4x initial measurement");
+        ESP_ERROR_CHECK(scd4x_get_data_ready_status(&scd4x_dev, &scd4x_datardy));
+        if (!scd4x_datardy)
+        {
+            vTaskDelay(pdMS_TO_TICKS(1000));
+        }
+    } while (!scd4x_datardy);
 
     while (1)
     {
-        if (scd4x_read_measurement(&scd4x_dev, &co2_reading, &temp, &humidity) == ESP_OK)
+        scd4x_get_data_ready_status(&scd4x_dev, &scd4x_datardy);
+
+        if (scd4x_datardy &&
+            scd4x_read_measurement(&scd4x_dev, &co2_reading, &temp, &humidity) == ESP_OK &&
+            lvgl_port_lock(100) == ESP_OK)
         {
-            if (lvgl_port_lock(50) == ESP_OK)
-            {
-                if (co2_reading < 1000)
-                {
-                    lv_label_set_text_fmt(label_co2, "%3u", co2_reading);
-                }
-                else
-                {
-                    lv_label_set_text_fmt(label_co2, "%4u", co2_reading);
-                }
-                // Set corresponding text color based on co2 reading
-                lv_style_set_text_color(&style_co2ppm, co2_color(co2_reading));
-                lv_obj_refresh_style(label_co2, LV_PART_MAIN, LV_STYLE_PROP_ANY);
-                lvgl_port_unlock();
-            }
+            ESP_LOGI(TAG, "SCD4x measurement: CO2=%uppm, T=%.2fC, H=%.2f%%", co2_reading, temp, humidity);
+            lv_label_set_text_fmt(label_co2, co2_reading < 1000 ? "%3u" : "%4u", co2_reading);
+            // Set corresponding text color based on co2 reading
+            lv_style_set_text_color(&style_co2ppm, co2_color(co2_reading));
+            lv_obj_refresh_style(label_co2, LV_PART_MAIN, LV_STYLE_PROP_ANY);
+            lvgl_port_unlock();
         }
-        vTaskDelay(pdMS_TO_TICKS(5000)); // SCD4x sensor updates measurement every 5s
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 
@@ -265,7 +271,6 @@ void app_main(void)
     ESP_LOGI(TAG, "SCD4x periodic measurements started");
 
     xTaskCreatePinnedToCore(scd4x_task, "SCD41 Task", 4096, NULL, 4, NULL, 0);
-
 
     ESP_LOGI(TAG, "SPIRAM FREE SIZE: %d Bytes", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
 
