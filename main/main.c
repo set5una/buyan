@@ -204,9 +204,9 @@ void app_main(void)
     lv_display_set_flush_cb(disp, example_lvgl_flush_cb);
     lv_display_set_flush_wait_cb(disp, lvgl_flush_wait_cb);
 
-    uint8_t *buf1 = (uint8_t *)heap_caps_malloc(BUF_SIZE, MALLOC_CAP_SPIRAM);
-    uint8_t *buf2 = (uint8_t *)heap_caps_malloc(BUF_SIZE, MALLOC_CAP_SPIRAM);
-    lvgl_dest = (uint8_t *)heap_caps_malloc(BUF_SIZE, MALLOC_CAP_SPIRAM);
+    uint8_t *buf1 = (uint8_t *)heap_caps_malloc(BUF_SIZE, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    uint8_t *buf2 = (uint8_t *)heap_caps_malloc(BUF_SIZE, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    lvgl_dest = (uint8_t *)heap_caps_malloc(BUF_SIZE, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     lv_display_set_buffers(disp, buf1, buf2, BUF_SIZE, LV_DISPLAY_RENDER_MODE_PARTIAL);
     lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_270);
     lv_display_set_user_data(disp, lcd_handle);
