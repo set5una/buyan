@@ -1,4 +1,7 @@
 # Project Buyan[^1]
+
+NEW (Feb 2026): 3d model for a printable enclosure added in directory `3d/`.
+
 CO2 meter using Sensirion SCD4x and [WaveShare ESP32-S3-LCD-3.16](https://www.waveshare.com/wiki/ESP32-S3-LCD-3.16) or equivalent with a similar ST7701 based LCD.
 
 > [!WARNING]
