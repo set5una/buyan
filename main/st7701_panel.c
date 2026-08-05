@@ -68,8 +68,13 @@ static const st7701_lcd_init_cmd_t lcd_init_cmds[] =
 static esp_lcd_panel_handle_t s_panel = NULL;
 static esp_lcd_panel_io_handle_t s_panel_io = NULL;
 
-static bool isr_on_bounce_frame_fin(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *edata, void *user_ctx)
+static bool isr_on_bounce_frame_fin(esp_lcd_panel_handle_t panel,
+                                    const esp_lcd_rgb_panel_event_data_t *edata,
+                                    void *user_ctx)
 {
+    (void)panel;
+    (void)edata;
+    (void)user_ctx;
     BaseType_t high_task_awoken = pdFALSE;
     xSemaphoreGiveFromISR(flush_done, &high_task_awoken);
     return high_task_awoken == pdTRUE;
@@ -81,9 +86,10 @@ esp_err_t st7701_panel_init(esp_lcd_panel_handle_t *panel_handle)
     *panel_handle = NULL;
 
     flush_done = xSemaphoreCreateBinary();
+    ESP_RETURN_ON_FALSE(flush_done, ESP_ERR_NO_MEM, TAG, "frame semaphore allocation failed");
 
     ESP_LOGI(TAG, "Initializing LCD backlight BSP component");
-    lcd_bl_pwm_bsp_init(LCD_PWM_MODE_100);
+    lcd_bl_pwm_bsp_init(LCD_PWM_MODE_150);
 
     ESP_LOGI(TAG, "Initializing LCD CMD channel SPI CFG");
     spi_line_config_t lcd_cmd_spi_conf =
@@ -175,7 +181,7 @@ esp_err_t st7701_panel_init(esp_lcd_panel_handle_t *panel_handle)
 
     ESP_LOGI(TAG, "Registering LCD event callback");
     esp_lcd_rgb_panel_event_callbacks_t cbs = {
-        .on_bounce_frame_finish = isr_on_bounce_frame_fin,
+        .on_frame_buf_complete = isr_on_bounce_frame_fin,
     };
     ESP_ERROR_CHECK(esp_lcd_rgb_panel_register_event_callbacks(s_panel, &cbs, NULL));
 
@@ -189,8 +195,21 @@ esp_err_t st7701_panel_init(esp_lcd_panel_handle_t *panel_handle)
     return ESP_OK;
 }
 
-void st7701_wait_flush_done(void)
+void st7701_clear_frame_completion(void)
 {
+    if (!flush_done)
+        return;
+
+    while (xSemaphoreTake(flush_done, 0) == pdTRUE)
+    {
+    }
+}
+
+void st7701_wait_frame_completion(void)
+{
+    if (!flush_done)
+        return;
+
     xSemaphoreTake(flush_done, portMAX_DELAY);
 }
 
