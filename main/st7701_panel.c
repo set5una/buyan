@@ -89,7 +89,7 @@ esp_err_t st7701_panel_init(esp_lcd_panel_handle_t *panel_handle)
     ESP_RETURN_ON_FALSE(flush_done, ESP_ERR_NO_MEM, TAG, "frame semaphore allocation failed");
 
     ESP_LOGI(TAG, "Initializing LCD backlight BSP component");
-    lcd_bl_pwm_bsp_init(LCD_PWM_MODE_150);
+    lcd_bl_pwm_bsp_init(LCD_PWM_MODE_100);
 
     ESP_LOGI(TAG, "Initializing LCD CMD channel SPI CFG");
     spi_line_config_t lcd_cmd_spi_conf =

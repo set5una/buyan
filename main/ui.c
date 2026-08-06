@@ -361,7 +361,7 @@ esp_err_t ui_create(void)
     lv_obj_set_style_bg_opa(screen, LV_OPA_COVER, 0);
 
     create_label(screen, &b612_32, lv_color_white(), 8, 2, "CO2");
-    create_label(screen, &b612_20, lv_color_white(), 94, 11, "PPM");
+    // create_label(screen, &b612_20, lv_color_white(), 94, 11, "PPM");
     label_co2 = create_label(screen, &co2_light_172, lv_color_white(), 6, 58, "----");
     lv_obj_set_width(label_co2, 420);
     lv_obj_set_style_text_letter_space(label_co2, 0, 0);
@@ -420,7 +420,7 @@ void ui_set_sensor_status(ui_sensor_status_t status)
         color = lv_color_hex(COLOR_GREEN);
         break;
     case UI_SENSOR_ASC_ENABLED:
-        text = "ASC ON";
+        text = "";
         color = lv_color_hex(COLOR_GREEN);
         break;
     case UI_SENSOR_ASC_ERROR:
@@ -462,11 +462,12 @@ void ui_set_sensor_metrics(bool asc_on, bool self_test_ok,
         snprintf(altitude_text, sizeof(altitude_text), "%uM", (unsigned int)altitude_m);
 
     const char *live_state = !communication_ok ? "COM ERR" : (data_ready ? "RDY" : "WAIT");
+    /*
     lv_label_set_text_fmt(label_sensor_metrics,
                           "ASC %s   TEST %s   T-OFF %s   ALT %s   %s",
                           asc_on ? "ON" : "OFF", self_test_ok ? "OK" : "FAIL",
                           offset_text, altitude_text, live_state);
-
+    */
     const lv_color_t color = !communication_ok || !self_test_ok
                                  ? lv_color_hex(COLOR_RED)
                                  : (asc_on ? lv_color_hex(COLOR_GREEN) : lv_color_hex(COLOR_AMBER));
